@@ -20,7 +20,7 @@ npm install checkee --save-dev
 
 #### Yarn
 ```
-yarn add checkee
+yarn add checkee --dev
 ```
 
 ### Configuration

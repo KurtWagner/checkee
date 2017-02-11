@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/KurtWagner/checkee.svg?branch=master)](https://travis-ci.org/KurtWagner/checkee)
+[![Coverage Status](https://coveralls.io/repos/github/KurtWagner/checkee/badge.svg?branch=master)](https://coveralls.io/github/KurtWagner/checkee?branch=master)
 
 # Checkee
 

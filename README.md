@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/KurtWagner/checkee.svg?branch=master)](https://travis-ci.org/KurtWagner/checkee)
+
 # Checkee
 
 **Important:** This is an experimental release. Please use at your own risk.

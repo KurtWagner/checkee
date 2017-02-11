@@ -6,15 +6,23 @@
   "author": "Kurt Wagner",
   "license": "MIT",
   "scripts": {
-    "test": "eslint . && nyc --reporter=text mocha -R spec lib/*.js lib/*/**.js"
+    "test": "eslint . && mocha lib/*.js lib/*/**.js",
+    "coveralls": "nyc --reporter=lcovonly mocha lib/*.js lib/*/**.js && cat ./coverage/lcov.info | coveralls",
+    "cover": "nyc --reporter=text mocha lib/*.js lib/*/**.js"
   },
-  "engines" : { "node" : ">=6.0.0" },
-  "bin" : { "checkee" : "./bin/checkee.js" },
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "bin": {
+    "checkee": "./bin/checkee.js"
+  },
   "devDependencies": {
     "chai": "3.5.0",
+    "coveralls": "2.11.16",
     "eslint": "3.13.1",
     "istanbul": "0.4.5",
     "mocha": "3.2.0",
+    "mocha-lcov-reporter": "1.2.0",
     "nyc": "10.1.2"
   },
   "dependencies": {

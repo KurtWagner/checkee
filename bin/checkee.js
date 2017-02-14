@@ -3,9 +3,9 @@
 'use strict';
 
 const config = require('../lib/config').getConfig();
-const args = require('../lib/args').getArgs();
+const args = require('../lib/args').getArgs(process.argv);
 
-const credentials = require('../lib/credentials').getCredentials(args.credentials);
+const credentials = getCredentialsFromArgs(args);
 
 const BitbucketClient = require('../lib/bitbucket/client');
 
@@ -23,7 +23,12 @@ if (!repoSlug || !repoUser || !pullRequestID) {
 }
 
 if (!checkstyleFilePaths || checkstyleFilePaths.length === 0) {
-	console.log('No check file paths. Nothing to do.');
+	console.error('No check file paths. Nothing to do.');
+	process.exit(0);
+}
+
+if (!verifyCredentials(credentials)) {
+	console.error('Missing username and password, or credentials file path.');
 	process.exit(0);
 }
 
@@ -107,4 +112,31 @@ function getPreviousCommentIds({currentUser, existingComments}) {
 		return comment.user.username === currentUser.username &&
 		       comment.content.raw.endsWith(messageIdentifier);
 	}
+}
+
+/**
+ * Returns credentials information for the given process args. If a credentials
+ * file path is not passed in, a username and password is required.
+ *
+ * @param {object} processArgs
+ * @param {string} [processArgs.username] - Bitbucket username
+ * @param {string} [processArgs.username] - Bitbucket password
+ * @param {string} [processArgs.credentials] - Path to JSON credentials file
+ */
+function getCredentialsFromArgs(processArgs) {
+	if (processArgs.credentials) {
+		return require('../lib/credentials').getCredentials(processArgs.credentials);
+	}
+	return {
+		bitbucket: {
+			username: processArgs.username,
+			password: processArgs.password,
+		},
+	};
+}
+
+function verifyCredentials({bitbucket}) {
+	return bitbucket &&
+	       bitbucket.username &&
+	       bitbucket.password;
 }

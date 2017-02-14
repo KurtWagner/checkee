@@ -63,6 +63,32 @@ In JSON configuration file somewhere you safely control you can include your cre
 
 At time of execution you consume the credentials file using the `--credentials` option.
 
+Alternatively, you can pass the `--username` and `--password` but be aware that this may appear in your logs. Normally you will start your script with
+
+```
+set +x
+```
+
+so that commands you run are not echoed to the log.
+
+### Message identifier
+
+The message identifier is used to uniquely identify comments made by the user. Upon update, it will remove any previous comments before making new ones. You should manually set this if you plan to run multiple checkstyle files separately on a single pull request. e.g,
+
+```
+checkstyle --checkstyle perlcritic-checkstyle.xml \
+           --message-identifier ".:perl:." \
+           --credentials "/credentials.json" \
+           --pull-request 1000;
+
+checkstyle --checkstyle eslint-checkstyle.xml \
+           --message-identifier ".:js:." \
+           --credentials "/credentials.json" \
+           --pull-request 1000;
+```	
+
+It defaults to `.:.`.
+
 ### Quick Example
 
 The following will make comments on pull request 1324 using errors from `checkstyle-result-1.xml` and `checkstyle-result-2.xml`.

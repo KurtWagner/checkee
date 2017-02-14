@@ -12,11 +12,10 @@ const BitbucketClient = require('../lib/bitbucket/client');
 const {
 	repoUser = config.bitbucket.repoUser,
 	repoSlug = config.bitbucket.repoSlug,
+	messageIdentifier = config.messageIdentifier,
 	pullRequestID,
 	checkstyleFilePaths,
 } = args;
-
-
 
 if (!repoSlug || !repoUser || !pullRequestID) {
 	console.error('Required repo slug, repo user and pull request id');
@@ -91,7 +90,7 @@ function getComments({checkstyle, changedChunks}) {
 				comments.push({
 					fileName: line.fileName, 
 					line: error.line,
-					message: `${error.message} ${config.messageIdentifier}`,
+					message: `${error.message} ${messageIdentifier}`,
 					column: error.column,
 				});
 			}
@@ -106,6 +105,6 @@ function getPreviousCommentIds({currentUser, existingComments}) {
 	
 	function isPreviousComment(comment) {
 		return comment.user.username === currentUser.username &&
-		       comment.content.raw.endsWith(config.messageIdentifier);
+		       comment.content.raw.endsWith(messageIdentifier);
 	}
 }

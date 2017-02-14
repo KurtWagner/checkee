@@ -10,6 +10,7 @@ module.exports = {
 	},
 	"globals": {
 		"it": true,
+		"describe": true,
 	},
 	"rules": {
 		// tabs over spaces

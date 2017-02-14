@@ -1,6 +1,6 @@
 {
   "name": "checkee",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Automate comments on bitbucket",
   "main": "bin/checkee.js",
   "author": "Kurt Wagner",

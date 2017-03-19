@@ -21,6 +21,10 @@
   "bin": {
     "checkee": "./bin/checkee.js"
   },
+  "keywords": [
+    "bitbucket",
+    "checkstyle"
+  ],
   "devDependencies": {
     "chai": "3.5.0",
     "coveralls": "2.11.16",

@@ -76,12 +76,12 @@ so that commands you run are not echoed to the log.
 The message identifier is used to uniquely identify comments made by the user. Upon update, it will remove any previous comments before making new ones. You should manually set this if you plan to run multiple checkstyle files separately on a single pull request. e.g,
 
 ```
-checkstyle --checkstyle perlcritic-checkstyle.xml \
+checkee --checkstyle perlcritic-checkstyle.xml \
            --message-identifier ".:perl:." \
            --credentials "/credentials.json" \
            --pull-request 1000;
 
-checkstyle --checkstyle eslint-checkstyle.xml \
+checkee --checkstyle eslint-checkstyle.xml \
            --message-identifier ".:js:." \
            --credentials "/credentials.json" \
            --pull-request 1000;

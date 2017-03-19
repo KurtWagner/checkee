@@ -95,6 +95,7 @@ function getComments({checkstyle, changedChunks}) {
 				comments.push({
 					fileName: line.fileName, 
 					line: error.line,
+					changed: line.changed,
 					message: `${error.message} ${messageIdentifier}`,
 					column: error.column,
 				});

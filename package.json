@@ -13,6 +13,11 @@
   "engines": {
     "node": ">=6.0.0"
   },
+  "nyc": {
+    "exclude": [
+      "**/*.spec.js"
+    ]
+  },
   "bin": {
     "checkee": "./bin/checkee.js"
   },

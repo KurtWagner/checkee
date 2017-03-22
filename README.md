@@ -46,7 +46,9 @@ checkee --pull-request 1324 \
 
 ### Authentication
 
-We only support username/password at this point. This should be the user you want to be making the comments on the pull requests. It should have read and write access to the pull request.
+We only support usernames and passwords. This should be the user you want to be making the comments on the pull requests. It should have read and write access to the pull request and repository. If the user has two-factor authentication enabled, you will need to use an [app password](https://confluence.atlassian.com/bitbucket/app-passwords-828781300.html)<sup>[1](https://blog.bitbucket.org/2016/06/06/app-passwords-bitbucket-cloud/)</sup>.
+
+*To control accessibility and limit scope while not exposing the accounts password you may consider using an app password regardless of 2-factor authentication.*
 
 #### Username/Password
 

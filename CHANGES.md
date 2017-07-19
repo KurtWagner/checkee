@@ -1,3 +1,9 @@
+### 0.0.5
+
+*Fixes:*
+
+- Some checkstyles were missing "source" attribute on errors. This change gracefully ignores the source if one is not given (fixes #6)
+
 ### 0.0.4
 
 *Fixes:*

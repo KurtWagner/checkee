@@ -5,6 +5,8 @@
 const config = require('../lib/config').getConfig();
 const args = require('../lib/args').getArgs(process.argv);
 
+const { loadAndroidLintResults, loadCheckstyleResults } = require('../lib/loaders');
+
 const credentials = getCredentialsFromArgs(args);
 
 const BitbucketClient = require('../lib/bitbucket/client');
@@ -14,7 +16,8 @@ const {
 	repoSlug = config.bitbucket.repoSlug,
 	messageIdentifier = config.messageIdentifier,
 	pullRequestID,
-	checkstyleFilePaths,
+	checkstyleFilePaths = [],
+	androidLintFilePaths = [],
 } = args;
 
 if (!repoSlug || !repoUser || !pullRequestID) {
@@ -22,9 +25,14 @@ if (!repoSlug || !repoUser || !pullRequestID) {
 	process.exit(1);
 }
 
-if (!checkstyleFilePaths || checkstyleFilePaths.length === 0) {
-	console.error('No check file paths. Nothing to do.');
-	process.exit(0);
+if (checkstyleFilePaths.length === 0 && androidLintFilePaths.length === 0) {
+	console.error('Please supply --checkstyle or --android-lint result files.');
+	process.exit(1);
+}
+
+if (checkstyleFilePaths.length > 0 && androidLintFilePaths.length > 0) {
+	console.error('Please supply either --checkstyle or --android-lint result files not both.');
+	process.exit(1);
 }
 
 if (!verifyCredentials(credentials)) {
@@ -36,64 +44,60 @@ const client = new BitbucketClient({
 	username: credentials.bitbucket.username,
 	password: credentials.bitbucket.password,
 });
-const pullRequest = client.repository(repoUser, repoSlug)
-                          .pullRequest(pullRequestID);
+const pullRequest = client.repository(repoUser, repoSlug).pullRequest(pullRequestID);
+
+const loader = checkstyleFilePaths.length > 0 ? loadCheckstyleResults : loadAndroidLintResults;
+const loaderFilePaths = checkstyleFilePaths.length > 0 ? checkstyleFilePaths : androidLintFilePaths;
 
 console.log('Getting comments, diff and current user');
-getCheckStyle().then((checkstyle) => {
-	const Q = require('q');
-	return Q.all([
-		Q(checkstyle),
-		pullRequest.getChangedChunks(),
-		pullRequest.getComments(),
-		client.getCurrentUser(),
-	])
-	 .then(startProcessing);
-}).catch((error) => {
-	console.error(error);
-	process.exit();
-});
+loader(loaderFilePaths)
+	.then(checkstyle => {
+		const Q = require('q');
+		return Q.all([
+			Q(checkstyle),
+			pullRequest.getChangedChunks(),
+			pullRequest.getComments(),
+			client.getCurrentUser(),
+		]).then(startProcessing);
+	})
+	.catch(error => {
+		console.error(error);
+		process.exit();
+	});
 
 function startProcessing([checkstyle, changedChunks, existingComments, currentUser]) {
-	
-	const comments = getComments({changedChunks, checkstyle});
+	const comments = getComments({ changedChunks, checkstyle });
 	const currentUserComments = getPreviousCommentIds({ currentUser, existingComments });
-	
+
 	console.log(`Deleting ${currentUserComments.length} comments ${currentUserComments.join(', ')}`);
-	pullRequest.deleteComments(...currentUserComments).then(({errors}) => {
+	pullRequest.deleteComments(...currentUserComments).then(({ errors }) => {
 		if (errors.length > 0) {
 			console.error('Failed to remove comments');
 			console.error(errors);
 		} else {
 			console.log(`Adding ${comments.length} comments`);
 			const addCommentPromises = [];
-			comments.forEach((comment) => {
+			comments.forEach(comment => {
 				const addCommentPromise = pullRequest.addComment(comment);
 				addCommentPromises.push(addCommentPromise);
 			});
-			require('q').all(addCommentPromises).finally(() => {
-				console.log('Done.');
-			});
+			require('q')
+				.all(addCommentPromises)
+				.finally(() => {
+					console.log('Done.');
+				});
 		}
 	});
 }
 
-function getCheckStyle() {
-	const checkstyles     = require('../lib/checkstyles');
-	const parseCheckstyle = require('../lib/parser/checkstyle');
-	
-	return checkstyles.getCheckstyles(...checkstyleFilePaths)
-	                  .then(filePaths => parseCheckstyle(...filePaths));
-}
-
-function getComments({checkstyle, changedChunks}) {
+function getComments({ checkstyle, changedChunks }) {
 	const comments = [];
-	checkstyle.forEach(({fileName, errors}) => {
-		errors.forEach((error) => {
+	checkstyle.forEach(({ fileName, errors }) => {
+		errors.forEach(error => {
 			const line = changedChunks.getLine(fileName, error.line);
 			if (line) {
 				comments.push({
-					fileName: line.fileName, 
+					fileName: line.fileName,
 					newLine: line.newLine,
 					previousLine: line.previousLine,
 					changed: line.changed,
@@ -106,13 +110,11 @@ function getComments({checkstyle, changedChunks}) {
 	return comments;
 }
 
-function getPreviousCommentIds({currentUser, existingComments}) {
-	return existingComments.filter(isPreviousComment)
-	                       .map(comment => comment.id);
-	
+function getPreviousCommentIds({ currentUser, existingComments }) {
+	return existingComments.filter(isPreviousComment).map(comment => comment.id);
+
 	function isPreviousComment(comment) {
-		return comment.user.username === currentUser.username &&
-		       comment.content.raw.endsWith(messageIdentifier);
+		return comment.user.username === currentUser.username && comment.content.raw.endsWith(messageIdentifier);
 	}
 }
 
@@ -137,8 +139,6 @@ function getCredentialsFromArgs(processArgs) {
 	};
 }
 
-function verifyCredentials({bitbucket}) {
-	return bitbucket &&
-	       bitbucket.username &&
-	       bitbucket.password;
+function verifyCredentials({ bitbucket }) {
+	return bitbucket && bitbucket.username && bitbucket.password;
 }

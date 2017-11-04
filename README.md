@@ -40,15 +40,25 @@ You can now simply call
 
 ```
 checkee --pull-request 1324 \
-        --checkstyle PATH-TO-CHECKSTYLE.xml \
+        --checkstyle PATH-TO-CHECKSTYLE-REPORT.xml \
+        --credentials PATH-TO-CREDENTIALS.json
+```
+
+or
+
+```
+checkee --pull-request 1324 \
+        --android-lint PATH-TO-LINT-REPORT.xml \
         --credentials PATH-TO-CREDENTIALS.json
 ```
 
 ### Authentication
 
-We only support usernames and passwords. This should be the user you want to be making the comments on the pull requests. It should have read and write access to the pull request and repository. If the user has two-factor authentication enabled, you will need to use an [app password](https://confluence.atlassian.com/bitbucket/app-passwords-828781300.html)<sup>[1](https://blog.bitbucket.org/2016/06/06/app-passwords-bitbucket-cloud/)</sup>.
+We only support usernames and passwords. This should be the user you want to be making the comments on the pull requests. It should have read and write access to the pull request and repository plus read on account. If the user has two-factor authentication enabled, you will need to use an [app password](https://confluence.atlassian.com/bitbucket/app-passwords-828781300.html)<sup>[1](https://blog.bitbucket.org/2016/06/06/app-passwords-bitbucket-cloud/)</sup>.
 
 *To control accessibility and limit scope while not exposing the accounts password you may consider using an app password regardless of 2-factor authentication.*
+
+![Bitbucket Application Password Scope](/screenshots/checkee-bitbucket-app.png)
 
 #### Username/Password
 
@@ -91,7 +101,33 @@ checkee --checkstyle eslint-checkstyle.xml \
 
 It defaults to `.:.`.
 
-### Quick Example
+### Options / Configuration
+
+#### --repo-slug / bitbucket.repoSlug
+
+The name of the bitbucket repository.
+
+#### --repo-user / bitbucket.repoUser
+
+The username who owns the bitbucket repository containing the pull request.
+
+#### --pull-request
+
+The id of the pull request. This should match up with the user and repository slugs.
+
+#### --checkstyle
+
+One or more paths to checkstyle result XML files. This cannot be used in conjunction with `--android-lint`.
+
+#### --android-lint
+
+One or more paths to Android Lint result XML files. This cannot be used in conjunction with `--checkstyle`.
+
+#### --credentials
+
+Point to the JSON file containing a `bitbucket.username` and `bitbucket.password`. See **Authentication** section.
+
+### Quick Example: Checkstyle
 
 The following will make comments on pull request 1324 using errors from `checkstyle-result-1.xml` and `checkstyle-result-2.xml`.
 
@@ -104,3 +140,19 @@ checkee \
 	--pull-request 1324 \
 	--credentials "/restricted/bitbucket-credentials.json"
 ```
+
+### Quick Example: Android Lint
+
+The following will make comments on pull request 1324 using errors from `android-lint-result-1.xml` and `android-lint-2.xml`.
+
+```
+checkee \
+	--android-lint android-lint-result-1.xml \
+	--android-lint android-lint-result-2.xml \
+	--repo-slug my-app \
+	--repo-user my-user \
+	--pull-request 1324 \
+	--credentials "/restricted/bitbucket-credentials.json"
+```
+![Android Lint Comment Sample](/screenshots/android-sample-comment.png)
+

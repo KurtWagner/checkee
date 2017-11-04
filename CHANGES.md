@@ -1,3 +1,9 @@
+### 0.1.0
+
+*Feature:*
+
+- Supports `--android-lint` option for Android Lint XML results. It cannot be used in conjunction with `--checkstyle`. It's an alternative.
+
 ### 0.0.5
 
 *Fixes:*
